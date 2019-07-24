@@ -37,8 +37,9 @@ const extension: JupyterFrontEndPlugin<void> = {
       let debugButton: ToolbarButton = new ToolbarButton({
         iconClassName: 'jp-BugIcon jp-Icon jp-Icon-16',
         onClick: async () => {
-          let future = notebookPanel.session.kernel.requestDebug({seq: 0, type: 'request', command: 'attach'});
-          await future.done;
+          console.log('Send requestDebug')
+          // let future = notebookPanel.session.kernel.requestDebug({seq: 0, type: 'request', command: 'attach'});
+          // await future.done;
         },
         tooltip: 'Start Debugging'
       });
