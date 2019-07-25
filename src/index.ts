@@ -7,7 +7,7 @@ import {
 } from "@jupyterlab/notebook";
 
 import {
-  Debugger
+  DebuggerPanel
 } from './widget';
 
 import '../style/index.css';
@@ -21,7 +21,7 @@ const extension: JupyterFrontEndPlugin<void> = {
   requires: [INotebookTracker],
   optional: [ILabShell],
   activate: (app: JupyterFrontEnd, tracker: INotebookTracker, labShell: ILabShell) => {
-    let widget = new Debugger({ tracker });
+    let widget = new DebuggerPanel({ tracker });
     widget.id = "jp-debugger";
     widget.title.iconClass = "jp-SideBar-tabIcon jp-BugIcon";
     widget.title.caption = "Debugger";

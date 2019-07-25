@@ -4,10 +4,9 @@ import {
 
 import * as React from "react";
 
-import { IBreakpointEvent, Debugger } from "../widget";
-
 import { ISignal } from "@phosphor/signaling";
 import { ArrayExt } from "@phosphor/algorithm";
+import { Debugger, IBreakpointEvent, IBreakpoint } from "../debugger";
 
 // Breakpoint section: header and general icons
 const DEBUGGER_HEADER_CLASS = "jp-Debugger-header";
@@ -22,11 +21,6 @@ const DEBUGGER_BREAKPOINT_ITEM_CLASS = "jp-Debugger-breakpointItem";
 const DEBUGGER_BREAKPOINT_ITEM_ENABLED_CLASS = "jp-Debugger-breakpointItem-enabled";
 const DEBUGGER_BREAKPOINT_ITEM_LABEL_CLASS = "jp-Debugger-breakpointItem-label";
 const DEBUGGER_BREAKPOINT_ITEM_LINE_CLASS = "jp-Debugger-breakpointItem-line";
-
-export interface IBreakpoint {
-  text: string;
-  line: number;
-}
 
 interface IBreakpointProps {
   text: string;
@@ -59,7 +53,7 @@ class Breakpoint extends React.Component<IBreakpointProps, IBreakpointState> {
     return (
       <li className={DEBUGGER_BREAKPOINT_ITEM_CLASS}>
         <ToolbarButtonComponent
-          // TODO: replace by checkbox?
+          // TODO: replace by a checkbox?
           tooltip="Enable / Disable"
           iconClassName={DEBUGGER_BREAKPOINT_ITEM_ENABLED_CLASS}
           onClick={() => console.log("enable / disable individual breakpoint")}
@@ -106,7 +100,7 @@ export class BreakpointsComponent extends React.Component<IBreakpointsProps, IBr
   }
 
   componentWillUnmount = () => {
-    this.props.activeCellChanged.connect(this.onActiveCellChanged, this);
+    this.props.activeCellChanged.disconnect(this.onActiveCellChanged, this);
     this.props.breakpointChanged.disconnect(this.onBreakpointChanged, this);
   }
 
@@ -120,8 +114,8 @@ export class BreakpointsComponent extends React.Component<IBreakpointsProps, IBr
       ArrayExt.removeAllWhere(breakpoints, bp => bp.line === breakpoint.line);
       return this.setState({ breakpoints });
     }
-    this.state.breakpoints.push(breakpoint);
-    this.state.breakpoints.sort((a, b) => a.line - b.line);
+    breakpoints.push(breakpoint);
+    breakpoints.sort((a, b) => a.line - b.line);
     this.setState({breakpoints});
   }
 
