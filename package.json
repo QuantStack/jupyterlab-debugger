@@ -32,10 +32,19 @@
   "dependencies": {
     "@jupyterlab/application": "^1.0.0",
     "@jupyterlab/apputils": "^1.0.0",
+    "@jupyterlab/cells": "^1.0.0",
+    "@jupyterlab/codeeditor": "^1.0.0",
+    "@jupyterlab/codemirror": "^1.0.0",
     "@jupyterlab/notebook": "^1.0.0",
-    "@phosphor/widgets": "^1.6.0"
+    "@phosphor/widgets": "^1.6.0",
+    "codemirror": "~5.47.0",
+    "react": "~16.8.4",
+    "react-dom": "~16.8.4"
   },
   "devDependencies": {
+    "@types/codemirror": "^0.0.76",
+    "@types/react": "~16.8.13",
+    "@types/react-dom": "~16.0.5",
     "rimraf": "^2.6.1",
     "typescript": "~3.5.1"
   },

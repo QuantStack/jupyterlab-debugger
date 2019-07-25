@@ -1,3 +1,4 @@
+/* Left Area Widget */
 .jp-Debugger {
   padding-bottom: 0px;
   color: var(--jp-ui-font-color1);
@@ -5,4 +6,85 @@
   display: flex;
   flex-direction: column;
   font-size: var(--jp-ui-font-size1);
+}
+
+/* Icon for disabling all the breakpoints */
+.jp-Debugger-DisableIcon {
+  background-size: 16px;
+  background-image: var(--jp-icon-close-circle);
+}
+
+/* Debugger Section Header */
+.jp-Debugger-header {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: row;
+  margin: var(--jp-toolbar-header-margin);
+  border-bottom: var(--jp-border-width) solid var(--jp-border-color2);
+  justify-content: flex-end;
+}
+
+/* Debugger Section Header - Title */
+.jp-Debugger-header h2 {
+  flex: 1 0 auto;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: var(--jp-ui-font-size0);
+  padding: 8px 8px 8px 4px;
+  margin: 0px;
+}
+
+/* Breakpoints list */
+.jp-Debugger-breakpointList {
+  margin: 0;
+  padding: 0;
+  list-style-type: none;
+}
+
+/* Breakpoints icon enabled / disabled */
+.jp-Debugger-breakpointItem-enabled {
+  background-image: var(--jp-icon-checkmark);
+}
+
+/* Breakpoints items */
+.jp-Debugger-breakpointItem {
+  display: flex;
+  flex-direction: row;
+  color: var(--jp-ui-font-color1);
+  height: var(--jp-private-running-item-height);
+  line-height: var(--jp-private-running-item-height);
+}
+
+/* Hovering over a breakpoint item */
+.jp-Debugger-breakpointItem:hover {
+  background: var(--jp-layout-color2);
+  cursor: pointer;
+}
+
+/* Breakpoint Label */
+.jp-Debugger-breakpointItem-label {
+  flex: 1 1 auto;
+  font-size: var(--jp-ui-font-size1);
+  padding-left: 4px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+/* Breakpoint Line */
+/* TODO: show as badge */
+.jp-Debugger-breakpointItem-line {
+  flex: 0 0 auto;
+  font-size: var(--jp-ui-font-size1);
+  margin-right: 4px;
+  padding-left: 4px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+/* Codemirror breakpoints */
+.breakpoints {
+    width: 15px;
 }
