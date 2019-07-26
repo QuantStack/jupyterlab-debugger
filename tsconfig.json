@@ -5,6 +5,7 @@
     "declaration": true,
     "esModuleInterop": true,
     "incremental": true,
+    "jsx": "react",
     "module": "esnext",
     "moduleResolution": "node",
     "noEmitOnError": true,
@@ -19,5 +20,5 @@
     "target": "es2017",
     "types": []
   },
-  "include": ["src/*"]
+  "include": ["src/**/*"]
 }
