@@ -14,11 +14,34 @@ interface IDebuggerProps {
   debugger: Debugger;
 }
 
-interface IDebuggerState { }
+interface IDebuggerState {
+  started: boolean;
+}
 
 export class DebuggerComponent extends React.Component<IDebuggerProps, IDebuggerState> {
   constructor(props: IDebuggerProps) {
     super(props);
+    this.state = {
+      started: false
+    }
+  }
+
+  startDebugger = async () => {
+    const { debugSession } = this.props.debugger;
+    console.log("Start Debugger");
+    await debugSession.start();
+    this.setState({
+      started: debugSession.started
+    })
+  }
+
+  stopDebugger = async () => {
+    const { debugSession } = this.props.debugger;
+    console.log("Stop Debugger");
+    await debugSession.stop();
+    this.setState({
+      started: debugSession.started
+    })
   }
 
   render() {
@@ -28,20 +51,16 @@ export class DebuggerComponent extends React.Component<IDebuggerProps, IDebugger
         <div className={DEBUGGER_HEADER_CLASS}>
           <h2>Debug</h2>
           <ToolbarButtonComponent
+            enabled={!this.state.started}
             tooltip="Start Debugger"
             iconClassName="jp-BugIcon"
-            onClick={() => {
-              console.log("Start Debugger");
-              this.props.debugger.debugSession.start();
-            }}
+            onClick={this.startDebugger}
           />
           <ToolbarButtonComponent
+            enabled={this.state.started}
             tooltip="Stop Debugger"
             iconClassName="jp-StopIcon"
-            onClick={() => {
-              console.log("Stop Debugger");
-              this.props.debugger.debugSession.stop();
-            }}
+            onClick={this.stopDebugger}
           />
         </div>
         <BreakpointsComponent activeCellChanged={activeCellChanged} breakpointChanged={breakpointChanged} />

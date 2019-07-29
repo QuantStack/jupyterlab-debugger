@@ -121,18 +121,29 @@ export class DebugSession {
       console.log(msg);
     };
     await debugAttach.done;
+
+    this._started = true;
   }
 
   public async stop() {
     const kernel = this._notebook.session.kernel;
-    const debugDisconnect = kernel.requestDebug(this.createDisconnectMsg(false, true));
+    const debugDisconnect = kernel.requestDebug(
+      this.createDisconnectMsg(false, true)
+    );
     debugDisconnect.onReply = (msg: KernelMessage.IDebugReplyMsg) => {
       console.log("received disconnect reply");
       console.log(msg);
     };
     await debugDisconnect.done;
+
+    this._started = false;
+  }
+
+  get started(): boolean {
+    return this._started;
   }
 
   private _notebook: NotebookPanel;
   private _seq: number;
+  private _started: boolean = false;
 }
