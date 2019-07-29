@@ -4,7 +4,7 @@ import { Widget, PanelLayout } from "@phosphor/widgets";
 
 import * as React from "react";
 
-import { Debugger } from "./debugger";
+import { Debugger } from "./debugger/main";
 
 import {
   DebuggerComponent

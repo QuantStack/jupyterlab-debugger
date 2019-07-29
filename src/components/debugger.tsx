@@ -6,7 +6,7 @@ import {
   BreakpointsComponent
 } from './breakpoints';
 
-import { Debugger } from '../debugger';
+import { Debugger } from '../debugger/main';
 
 const DEBUGGER_HEADER_CLASS = "jp-Debugger-header";
 
@@ -32,6 +32,7 @@ export class DebuggerComponent extends React.Component<IDebuggerProps, IDebugger
             iconClassName="jp-BugIcon"
             onClick={() => {
               console.log("Start Debugger");
+              this.props.debugger.debugSession.start();
             }}
           />
           <ToolbarButtonComponent
@@ -39,6 +40,7 @@ export class DebuggerComponent extends React.Component<IDebuggerProps, IDebugger
             iconClassName="jp-StopIcon"
             onClick={() => {
               console.log("Stop Debugger");
+              this.props.debugger.debugSession.stop();
             }}
           />
         </div>

@@ -6,7 +6,7 @@ import * as React from "react";
 
 import { ISignal } from "@phosphor/signaling";
 import { ArrayExt } from "@phosphor/algorithm";
-import { Debugger, IBreakpointEvent, IBreakpoint } from "../debugger";
+import { Debugger, IBreakpointEvent, IBreakpoint } from "../debugger/main";
 
 // Breakpoint section: header and general icons
 const DEBUGGER_HEADER_CLASS = "jp-Debugger-header";
