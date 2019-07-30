@@ -19,7 +19,7 @@ export class Debugger implements IDebugger {
     this._tracker.activeCellChanged.connect(this._onActiveCellChanged, this);
   }
 
-  protected _onActiveCellChanged() {
+  protected async _onActiveCellChanged() {
     const widget = this._tracker.currentWidget;
     if (!widget) {
       return;
@@ -32,10 +32,15 @@ export class Debugger implements IDebugger {
     if (!activeCell) {
       return;
     }
+
+    if (this._debugSession && this._debugSession.started) {
+      await this._debugSession.stop();
+    }
     // reinitialize the list of breakpoints
     // TODO: retrieve breakpoints from StateDB?
     const breakpoints = this._getExistingBreakpoints(activeCell);
     this._debugSession = new DebugSession(widget);
+    this._debugSession.breakpoints = breakpoints;
     this.activeCellChanged.emit(breakpoints);
     this._setupListeners(activeCell);
   }
@@ -88,7 +93,7 @@ export class Debugger implements IDebugger {
       const info = editor.editor.lineInfo(i);
       if (info.gutterMarkers) {
         const breakpoint = {
-          line: info.line,
+          line: info.line + 1, // lines start at 1
           text: info.text,
           remove: false,
         }

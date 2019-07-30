@@ -63,7 +63,7 @@ export class DebugSession implements IDebugSession {
   }
 
   createUpdateCellRequest(cellId: number, nextId: number, code: string) {
-    return this.createRequestMsg("update_cell", {
+    return this.createRequestMsg("updateCell", {
       cellId: cellId,
       nextId: nextId,
       code: code
@@ -117,6 +117,12 @@ export class DebugSession implements IDebugSession {
     this._seq = 0;
 
     const kernel = this._notebook.session.kernel;
+    const cell = this._notebook.content.activeCell;
+
+    if (!cell) {
+      return;
+    }
+
     const debugInit = kernel.requestDebug(this.createInitializeMsg());
     debugInit.onReply = (msg: KernelMessage.IDebugReplyMsg) => {
       console.log("received init reply");
@@ -133,7 +139,19 @@ export class DebugSession implements IDebugSession {
     };
     await debugAttach.done;
 
-    const path = "";
+    const cellContent = cell.model.value.text;
+    // cellId does not seem to be used in xeus-python
+    // TODO: send proper value for cellId
+    const debugCell = kernel.requestDebug(this.createUpdateCellRequest(0, this._nextId++, cellContent));
+    let debugCellReply: KernelMessage.IDebugReplyMsg;
+    debugCell.onReply = (msg: KernelMessage.IDebugReplyMsg) => {
+      console.log("received updateCell reply");
+      console.log(msg);
+      debugCellReply = msg;
+    };
+    await debugCell.done;
+
+    const path = debugCellReply.content.body.sourcePath;
     const debugBreakpoints = kernel.requestDebug(
       this.createBreakpointRequest(path)
     );
@@ -174,6 +192,7 @@ export class DebugSession implements IDebugSession {
 
   private _notebook: NotebookPanel;
   private _seq: number;
+  private _nextId: number = 0;
   private _started: boolean = false;
   private _breakpoints: IBreakpoint[] = [];
 }

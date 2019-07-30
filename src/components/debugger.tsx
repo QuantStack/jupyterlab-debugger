@@ -43,7 +43,8 @@ export class DebuggerComponent extends React.Component<IDebuggerProps, IDebugger
 
   onActiveCellChanged = (sender: IDebugger, breakpoints: IBreakpoint[]) => {
     const { debugSession } = this.props.debugger;
-    this.setState({ debugSession, breakpoints });
+    const started = debugSession.started;
+    this.setState({ debugSession, breakpoints, started });
   }
 
   onBreakpointsChanged = (sender: IDebugger, breakpoints: IBreakpoint[]) => {
