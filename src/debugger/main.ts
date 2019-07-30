@@ -3,25 +3,23 @@ import { CodeMirrorEditor } from "@jupyterlab/codemirror";
 import { INotebookTracker } from "@jupyterlab/notebook";
 import { Signal } from "@phosphor/signaling";
 
+import { IDebugger } from './tokens';
+import { DebugSession, IDebugSession, IBreakpoint } from './session';
+
 export interface IBreakpointEvent {
   line: number;
   text: string;
   remove: boolean;
 }
 
-export interface IBreakpoint {
-  text: string;
-  line: number;
-}
-
-export class Debugger {
+export class Debugger implements IDebugger {
   constructor(options: Debugger.IOptions) {
     const { tracker } = options;
     this._tracker = tracker;
     this._tracker.activeCellChanged.connect(this._onActiveCellChanged, this);
   }
 
-  protected _onActiveCellChanged() {
+  protected async _onActiveCellChanged() {
     const widget = this._tracker.currentWidget;
     if (!widget) {
       return;
@@ -34,9 +32,15 @@ export class Debugger {
     if (!activeCell) {
       return;
     }
+
+    if (this._debugSession && this._debugSession.started) {
+      await this._debugSession.stop();
+    }
     // reinitialize the list of breakpoints
     // TODO: retrieve breakpoints from StateDB?
     const breakpoints = this._getExistingBreakpoints(activeCell);
+    this._debugSession = new DebugSession(widget);
+    this._debugSession.breakpoints = breakpoints;
     this.activeCellChanged.emit(breakpoints);
     this._setupListeners(activeCell);
   }
@@ -75,7 +79,10 @@ export class Debugger {
       "breakpoints",
       breakpoint.remove ? null : Private.createMarkerNode()
     );
-    this.breakpointChanged.emit(breakpoint);
+
+    const breakpoints = this._getExistingBreakpoints(this._tracker.activeCell);
+    this.debugSession.breakpoints = breakpoints;
+    this.breakpointChanged.emit(breakpoints);
   }
 
   protected _getExistingBreakpoints(cell: Cell): IBreakpoint[] {
@@ -86,7 +93,7 @@ export class Debugger {
       const info = editor.editor.lineInfo(i);
       if (info.gutterMarkers) {
         const breakpoint = {
-          line: info.line,
+          line: info.line + 1, // lines start at 1
           text: info.text,
           remove: false,
         }
@@ -100,11 +107,16 @@ export class Debugger {
     return this._tracker.activeCell;
   }
 
-  readonly breakpointChanged = new Signal<this, IBreakpointEvent>(this);
+  get debugSession(): IDebugSession {
+    return this._debugSession;
+  }
+
+  readonly breakpointChanged = new Signal<this, IBreakpoint[]>(this);
   readonly activeCellChanged = new Signal<this, IBreakpoint[]>(this);
 
   private _tracker: INotebookTracker;
   private _previousCell: Cell;
+  private _debugSession: IDebugSession;
 }
 
 export namespace Debugger {

@@ -4,9 +4,7 @@ import {
 
 import * as React from "react";
 
-import { ISignal } from "@phosphor/signaling";
-import { ArrayExt } from "@phosphor/algorithm";
-import { Debugger, IBreakpointEvent, IBreakpoint } from "../debugger";
+import { IDebugSession } from "../debugger/session";
 
 // Breakpoint section: header and general icons
 const DEBUGGER_HEADER_CLASS = "jp-Debugger-header";
@@ -35,13 +33,11 @@ interface IBreakpointListProps {
 }
 
 interface IBreakpointsProps {
+  debugSession: IDebugSession;
   breakpoints?: IBreakpointProps[];
-  breakpointChanged: ISignal<Debugger, IBreakpointEvent>;
-  activeCellChanged: ISignal<Debugger, IBreakpoint[]>;
 }
 
 interface IBreakpointsState {
-  breakpoints: IBreakpointProps[];
 }
 
 class Breakpoint extends React.Component<IBreakpointProps, IBreakpointState> {
@@ -94,38 +90,13 @@ export class BreakpointsComponent extends React.Component<IBreakpointsProps, IBr
     }
   }
 
-  componentDidMount = () => {
-    this.props.activeCellChanged.connect(this.onActiveCellChanged, this);
-    this.props.breakpointChanged.connect(this.onBreakpointChanged, this);
-  }
-
-  componentWillUnmount = () => {
-    this.props.activeCellChanged.disconnect(this.onActiveCellChanged, this);
-    this.props.breakpointChanged.disconnect(this.onBreakpointChanged, this);
-  }
-
-  onActiveCellChanged = (sender: Debugger, breakpoints: IBreakpoint[]) => {
-    this.setState({ breakpoints });
-  }
-
-  onBreakpointChanged = (sender: Debugger, breakpoint: IBreakpointEvent) => {
-    let breakpoints = this.state.breakpoints;
-    if (breakpoint.remove) {
-      ArrayExt.removeAllWhere(breakpoints, bp => bp.line === breakpoint.line);
-      return this.setState({ breakpoints });
-    }
-    breakpoints.push(breakpoint);
-    breakpoints.sort((a, b) => a.line - b.line);
-    this.setState({breakpoints});
-  }
-
   render() {
     return (
       <>
         <div className={DEBUGGER_HEADER_CLASS}>
           <h2>Breakpoints</h2>
           <ToolbarButtonComponent
-            enabled={this.state.breakpoints.length > 0}
+            enabled={this.props.breakpoints.length > 0}
             tooltip="Disable All Breakpoints"
             iconClassName={DEBUGGER_BREAKPOINTS_DISABLE_ICON_CLASS}
             onClick={() => {
@@ -133,7 +104,7 @@ export class BreakpointsComponent extends React.Component<IBreakpointsProps, IBr
             }}
           />
           <ToolbarButtonComponent
-            enabled={this.state.breakpoints.length > 0}
+            enabled={this.props.breakpoints.length > 0}
             tooltip="Remove All Breakpoints"
             iconClassName={DEBUGGER_BREAKPOINTS_REMOVE_ICON_CLASS}
             onClick={() => {
@@ -141,7 +112,7 @@ export class BreakpointsComponent extends React.Component<IBreakpointsProps, IBr
             }}
           />
         </div>
-        <BreakpointsListView breakpoints={this.state.breakpoints}/>
+        <BreakpointsListView breakpoints={this.props.breakpoints}/>
       </>
     );
 

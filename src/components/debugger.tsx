@@ -6,43 +6,91 @@ import {
   BreakpointsComponent
 } from './breakpoints';
 
-import { Debugger } from '../debugger';
+import { IDebugger } from '../debugger/tokens';
+import { IDebugSession, IBreakpoint } from '../debugger/session';
 
 const DEBUGGER_HEADER_CLASS = "jp-Debugger-header";
 
 interface IDebuggerProps {
-  debugger: Debugger;
+  debugger: IDebugger;
 }
 
-interface IDebuggerState { }
+interface IDebuggerState {
+  started: boolean;
+  debugSession: IDebugSession;
+  breakpoints: IBreakpoint[];
+}
 
 export class DebuggerComponent extends React.Component<IDebuggerProps, IDebuggerState> {
   constructor(props: IDebuggerProps) {
     super(props);
+    this.state = {
+      started: false,
+      debugSession: props.debugger.debugSession,
+      breakpoints: []
+    }
+  }
+
+  componentDidMount = () => {
+    this.props.debugger.activeCellChanged.connect(this.onActiveCellChanged, this);
+    this.props.debugger.breakpointChanged.connect(this.onBreakpointsChanged, this);
+  }
+
+  componentWillUnmount = () => {
+    this.props.debugger.breakpointChanged.disconnect(this.onBreakpointsChanged, this);
+    this.props.debugger.activeCellChanged.disconnect(this.onActiveCellChanged, this);
+  }
+
+  onActiveCellChanged = (sender: IDebugger, breakpoints: IBreakpoint[]) => {
+    const { debugSession } = this.props.debugger;
+    const started = debugSession.started;
+    this.setState({ debugSession, breakpoints, started });
+  }
+
+  onBreakpointsChanged = (sender: IDebugger, breakpoints: IBreakpoint[]) => {
+    this.setState({ breakpoints });
+  }
+
+  startDebugger = async () => {
+    const { debugSession } = this.props.debugger;
+    console.log("Start Debugger");
+    await debugSession.start();
+    this.setState({
+      started: debugSession.started
+    })
+  }
+
+  stopDebugger = async () => {
+    const { debugSession } = this.props.debugger;
+    console.log("Stop Debugger");
+    await debugSession.stop();
+    this.setState({
+      started: debugSession.started
+    })
   }
 
   render() {
-    const { activeCellChanged, breakpointChanged } = this.props.debugger;
     return (
       <>
         <div className={DEBUGGER_HEADER_CLASS}>
           <h2>Debug</h2>
           <ToolbarButtonComponent
+            enabled={!this.state.started}
             tooltip="Start Debugger"
             iconClassName="jp-BugIcon"
-            onClick={() => {
-              console.log("Start Debugger");
-            }}
+            onClick={this.startDebugger}
           />
           <ToolbarButtonComponent
+            enabled={this.state.started}
             tooltip="Stop Debugger"
             iconClassName="jp-StopIcon"
-            onClick={() => {
-              console.log("Stop Debugger");
-            }}
+            onClick={this.stopDebugger}
           />
         </div>
-        <BreakpointsComponent activeCellChanged={activeCellChanged} breakpointChanged={breakpointChanged} />
+        <BreakpointsComponent
+          debugSession={this.state.debugSession}
+          breakpoints={this.state.breakpoints}
+        />
       </>
     )
   }
