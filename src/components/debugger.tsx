@@ -1,13 +1,11 @@
-import { ToolbarButtonComponent } from '@jupyterlab/apputils';
+import { ToolbarButtonComponent } from "@jupyterlab/apputils";
 
-import * as React from 'react';
+import * as React from "react";
 
-import {
-  BreakpointsComponent
-} from './breakpoints';
+import { BreakpointsComponent } from "./breakpoints";
 
-import { IDebugger } from '../debugger/tokens';
-import { IDebugSession, IBreakpoint } from '../debugger/session';
+import { IDebugger } from "../debugger/tokens";
+import { IDebugSession, IBreakpoint } from "../debugger/session";
 
 const DEBUGGER_HEADER_CLASS = "jp-Debugger-header";
 
@@ -21,35 +19,50 @@ interface IDebuggerState {
   breakpoints: IBreakpoint[];
 }
 
-export class DebuggerComponent extends React.Component<IDebuggerProps, IDebuggerState> {
+export class DebuggerComponent extends React.Component<
+  IDebuggerProps,
+  IDebuggerState
+> {
   constructor(props: IDebuggerProps) {
     super(props);
     this.state = {
       started: false,
       debugSession: props.debugger.debugSession,
       breakpoints: []
-    }
+    };
   }
 
   componentDidMount = () => {
-    this.props.debugger.activeCellChanged.connect(this.onActiveCellChanged, this);
-    this.props.debugger.breakpointChanged.connect(this.onBreakpointsChanged, this);
-  }
+    this.props.debugger.activeCellChanged.connect(
+      this.onActiveCellChanged,
+      this
+    );
+    this.props.debugger.breakpointChanged.connect(
+      this.onBreakpointsChanged,
+      this
+    );
+  };
 
   componentWillUnmount = () => {
-    this.props.debugger.breakpointChanged.disconnect(this.onBreakpointsChanged, this);
-    this.props.debugger.activeCellChanged.disconnect(this.onActiveCellChanged, this);
-  }
+    this.props.debugger.breakpointChanged.disconnect(
+      this.onBreakpointsChanged,
+      this
+    );
+    this.props.debugger.activeCellChanged.disconnect(
+      this.onActiveCellChanged,
+      this
+    );
+  };
 
   onActiveCellChanged = (sender: IDebugger, breakpoints: IBreakpoint[]) => {
     const { debugSession } = this.props.debugger;
     const started = debugSession.started;
     this.setState({ debugSession, breakpoints, started });
-  }
+  };
 
   onBreakpointsChanged = (sender: IDebugger, breakpoints: IBreakpoint[]) => {
     this.setState({ breakpoints });
-  }
+  };
 
   startDebugger = async () => {
     const { debugSession } = this.props.debugger;
@@ -57,8 +70,8 @@ export class DebuggerComponent extends React.Component<IDebuggerProps, IDebugger
     await debugSession.start();
     this.setState({
       started: debugSession.started
-    })
-  }
+    });
+  };
 
   stopDebugger = async () => {
     const { debugSession } = this.props.debugger;
@@ -66,8 +79,8 @@ export class DebuggerComponent extends React.Component<IDebuggerProps, IDebugger
     await debugSession.stop();
     this.setState({
       started: debugSession.started
-    })
-  }
+    });
+  };
 
   render() {
     return (
@@ -92,6 +105,6 @@ export class DebuggerComponent extends React.Component<IDebuggerProps, IDebugger
           breakpoints={this.state.breakpoints}
         />
       </>
-    )
+    );
   }
 }

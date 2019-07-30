@@ -142,7 +142,9 @@ export class DebugSession implements IDebugSession {
     const cellContent = cell.model.value.text;
     // cellId does not seem to be used in xeus-python
     // TODO: send proper value for cellId
-    const debugCell = kernel.requestDebug(this.createUpdateCellRequest(0, this._nextId++, cellContent));
+    const debugCell = kernel.requestDebug(
+      this.createUpdateCellRequest(0, this._nextId++, cellContent)
+    );
     let debugCellReply: KernelMessage.IDebugReplyMsg;
     debugCell.onReply = (msg: KernelMessage.IDebugReplyMsg) => {
       console.log("received updateCell reply");
