@@ -1,7 +1,19 @@
 import { NotebookPanel } from "@jupyterlab/notebook";
 import { KernelMessage } from "@jupyterlab/services";
 
-export class DebugSession {
+export interface IBreakpoint {
+  text: string;
+  line: number;
+}
+
+export interface IDebugSession {
+  start(): void;
+  stop(): void;
+  started: boolean;
+  breakpoints: IBreakpoint[];
+}
+
+export class DebugSession implements IDebugSession {
   constructor(notebook: NotebookPanel) {
     this._notebook = notebook;
   }
@@ -58,16 +70,15 @@ export class DebugSession {
     });
   }
 
-  createBreakpointRequest(path: string, lineNumbers: number[]) {
-    let breakarray = [];
-    for (let el in lineNumbers) {
-      breakarray.push({ line: el });
-    }
+  createBreakpointRequest(path: string) {
+    const lines = this._breakpoints.map(line => {
+      line;
+    });
 
     return this.createRequestMsg("setBreakpoints", {
       source: { path: path },
-      breakpoints: breakarray,
-      lines: lineNumbers,
+      breakpoints: this._breakpoints,
+      lines: lines,
       sourceModified: false
     });
   }
@@ -122,6 +133,16 @@ export class DebugSession {
     };
     await debugAttach.done;
 
+    const path = "";
+    const debugBreakpoints = kernel.requestDebug(
+      this.createBreakpointRequest(path)
+    );
+    debugBreakpoints.onReply = (msg: KernelMessage.IDebugReplyMsg) => {
+      console.log("received breakpoints reply");
+      console.log(msg);
+    };
+    await debugBreakpoints.done;
+
     this._started = true;
   }
 
@@ -143,7 +164,16 @@ export class DebugSession {
     return this._started;
   }
 
+  get breakpoints(): IBreakpoint[] {
+    return this._breakpoints;
+  }
+
+  set breakpoints(breakpoints: IBreakpoint[]) {
+    this._breakpoints = breakpoints;
+  }
+
   private _notebook: NotebookPanel;
   private _seq: number;
   private _started: boolean = false;
+  private _breakpoints: IBreakpoint[] = [];
 }

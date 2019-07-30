@@ -3,7 +3,8 @@ import { CodeMirrorEditor } from "@jupyterlab/codemirror";
 import { INotebookTracker } from "@jupyterlab/notebook";
 import { Signal } from "@phosphor/signaling";
 
-import { DebugSession } from "./session";
+import { IDebugger } from './tokens';
+import { DebugSession, IDebugSession, IBreakpoint } from './session';
 
 export interface IBreakpointEvent {
   line: number;
@@ -11,12 +12,7 @@ export interface IBreakpointEvent {
   remove: boolean;
 }
 
-export interface IBreakpoint {
-  text: string;
-  line: number;
-}
-
-export class Debugger {
+export class Debugger implements IDebugger {
   constructor(options: Debugger.IOptions) {
     const { tracker } = options;
     this._tracker = tracker;
@@ -78,7 +74,10 @@ export class Debugger {
       "breakpoints",
       breakpoint.remove ? null : Private.createMarkerNode()
     );
-    this.breakpointChanged.emit(breakpoint);
+
+    const breakpoints = this._getExistingBreakpoints(this._tracker.activeCell);
+    this.debugSession.breakpoints = breakpoints;
+    this.breakpointChanged.emit(breakpoints);
   }
 
   protected _getExistingBreakpoints(cell: Cell): IBreakpoint[] {
@@ -103,17 +102,16 @@ export class Debugger {
     return this._tracker.activeCell;
   }
 
-  get debugSession(): DebugSession {
+  get debugSession(): IDebugSession {
     return this._debugSession;
   }
 
-  readonly breakpointChanged = new Signal<this, IBreakpointEvent>(this);
+  readonly breakpointChanged = new Signal<this, IBreakpoint[]>(this);
   readonly activeCellChanged = new Signal<this, IBreakpoint[]>(this);
 
   private _tracker: INotebookTracker;
   private _previousCell: Cell;
-
-  private _debugSession: DebugSession;
+  private _debugSession: IDebugSession;
 }
 
 export namespace Debugger {

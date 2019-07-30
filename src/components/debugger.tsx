@@ -6,24 +6,48 @@ import {
   BreakpointsComponent
 } from './breakpoints';
 
-import { Debugger } from '../debugger/main';
+import { IDebugger } from '../debugger/tokens';
+import { IDebugSession, IBreakpoint } from '../debugger/session';
 
 const DEBUGGER_HEADER_CLASS = "jp-Debugger-header";
 
 interface IDebuggerProps {
-  debugger: Debugger;
+  debugger: IDebugger;
 }
 
 interface IDebuggerState {
   started: boolean;
+  debugSession: IDebugSession;
+  breakpoints: IBreakpoint[];
 }
 
 export class DebuggerComponent extends React.Component<IDebuggerProps, IDebuggerState> {
   constructor(props: IDebuggerProps) {
     super(props);
     this.state = {
-      started: false
+      started: false,
+      debugSession: props.debugger.debugSession,
+      breakpoints: []
     }
+  }
+
+  componentDidMount = () => {
+    this.props.debugger.activeCellChanged.connect(this.onActiveCellChanged, this);
+    this.props.debugger.breakpointChanged.connect(this.onBreakpointsChanged, this);
+  }
+
+  componentWillUnmount = () => {
+    this.props.debugger.breakpointChanged.disconnect(this.onBreakpointsChanged, this);
+    this.props.debugger.activeCellChanged.disconnect(this.onActiveCellChanged, this);
+  }
+
+  onActiveCellChanged = (sender: IDebugger, breakpoints: IBreakpoint[]) => {
+    const { debugSession } = this.props.debugger;
+    this.setState({ debugSession, breakpoints });
+  }
+
+  onBreakpointsChanged = (sender: IDebugger, breakpoints: IBreakpoint[]) => {
+    this.setState({ breakpoints });
   }
 
   startDebugger = async () => {
@@ -45,7 +69,6 @@ export class DebuggerComponent extends React.Component<IDebuggerProps, IDebugger
   }
 
   render() {
-    const { activeCellChanged, breakpointChanged } = this.props.debugger;
     return (
       <>
         <div className={DEBUGGER_HEADER_CLASS}>
@@ -63,7 +86,10 @@ export class DebuggerComponent extends React.Component<IDebuggerProps, IDebugger
             onClick={this.stopDebugger}
           />
         </div>
-        <BreakpointsComponent activeCellChanged={activeCellChanged} breakpointChanged={breakpointChanged} />
+        <BreakpointsComponent
+          debugSession={this.state.debugSession}
+          breakpoints={this.state.breakpoints}
+        />
       </>
     )
   }
