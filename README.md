@@ -4,7 +4,7 @@ Debugger extension for JupyterLab.
 
 ## Prerequisites
 
-* JupyterLab 1.0
+- JupyterLab 1.0
 
 ## Development
 
@@ -34,4 +34,3 @@ XEUS_LOG=1 jupyter lab --dev-mode --no-browser --watch
 ```
 
 When making changes to the `jupyterlab-debugger` extension, rerun the `add:sibling` command.
-

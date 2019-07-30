@@ -1,6 +1,4 @@
-import {
-  ToolbarButtonComponent,
-} from "@jupyterlab/apputils";
+import { ToolbarButtonComponent } from "@jupyterlab/apputils";
 
 import * as React from "react";
 
@@ -16,7 +14,8 @@ const DEBUGGER_BREAKPOINTS_LIST_CLASS = "jp-Debugger-breakpointList";
 
 // Breakpoint items
 const DEBUGGER_BREAKPOINT_ITEM_CLASS = "jp-Debugger-breakpointItem";
-const DEBUGGER_BREAKPOINT_ITEM_ENABLED_CLASS = "jp-Debugger-breakpointItem-enabled";
+const DEBUGGER_BREAKPOINT_ITEM_ENABLED_CLASS =
+  "jp-Debugger-breakpointItem-enabled";
 const DEBUGGER_BREAKPOINT_ITEM_LABEL_CLASS = "jp-Debugger-breakpointItem-label";
 const DEBUGGER_BREAKPOINT_ITEM_LINE_CLASS = "jp-Debugger-breakpointItem-line";
 
@@ -25,8 +24,7 @@ interface IBreakpointProps {
   line: number;
 }
 
-interface IBreakpointState {
-}
+interface IBreakpointState {}
 
 interface IBreakpointListProps {
   breakpoints: IBreakpointProps[];
@@ -37,8 +35,7 @@ interface IBreakpointsProps {
   breakpoints?: IBreakpointProps[];
 }
 
-interface IBreakpointsState {
-}
+interface IBreakpointsState {}
 
 class Breakpoint extends React.Component<IBreakpointProps, IBreakpointState> {
   constructor(props: IBreakpointProps) {
@@ -60,14 +57,11 @@ class Breakpoint extends React.Component<IBreakpointProps, IBreakpointState> {
         >
           {this.props.text}
         </span>
-        <span
-          className={DEBUGGER_BREAKPOINT_ITEM_LINE_CLASS}
-          title="Cell Line"
-        >
+        <span className={DEBUGGER_BREAKPOINT_ITEM_LINE_CLASS} title="Cell Line">
           {this.props.line}
         </span>
       </li>
-    )
+    );
   }
 }
 
@@ -82,12 +76,15 @@ function BreakpointsListView(props: IBreakpointListProps) {
   );
 }
 
-export class BreakpointsComponent extends React.Component<IBreakpointsProps, IBreakpointsState> {
+export class BreakpointsComponent extends React.Component<
+  IBreakpointsProps,
+  IBreakpointsState
+> {
   constructor(props: IBreakpointsProps) {
     super(props);
     this.state = {
       breakpoints: props.breakpoints || []
-    }
+    };
   }
 
   render() {
@@ -112,9 +109,8 @@ export class BreakpointsComponent extends React.Component<IBreakpointsProps, IBr
             }}
           />
         </div>
-        <BreakpointsListView breakpoints={this.props.breakpoints}/>
+        <BreakpointsListView breakpoints={this.props.breakpoints} />
       </>
     );
-
   }
 }

@@ -3,8 +3,8 @@ import { CodeMirrorEditor } from "@jupyterlab/codemirror";
 import { INotebookTracker } from "@jupyterlab/notebook";
 import { Signal } from "@phosphor/signaling";
 
-import { IDebugger } from './tokens';
-import { DebugSession, IDebugSession, IBreakpoint } from './session';
+import { IDebugger } from "./tokens";
+import { DebugSession, IDebugSession, IBreakpoint } from "./session";
 
 export interface IBreakpointEvent {
   line: number;
@@ -73,7 +73,7 @@ export class Debugger implements IDebugger {
       line: lineNumber,
       text: info.text,
       remove: !!info.gutterMarkers
-    }
+    };
     editor.setGutterMarker(
       lineNumber,
       "breakpoints",
@@ -83,7 +83,7 @@ export class Debugger implements IDebugger {
     const breakpoints = this._getExistingBreakpoints(this._tracker.activeCell);
     this.debugSession.breakpoints = breakpoints;
     this.breakpointChanged.emit(breakpoints);
-  }
+  };
 
   protected _getExistingBreakpoints(cell: Cell): IBreakpoint[] {
     const editor = cell.editor as CodeMirrorEditor;
@@ -95,8 +95,8 @@ export class Debugger implements IDebugger {
         const breakpoint = {
           line: info.line + 1, // lines start at 1
           text: info.text,
-          remove: false,
-        }
+          remove: false
+        };
         lines.push(breakpoint);
       }
     }

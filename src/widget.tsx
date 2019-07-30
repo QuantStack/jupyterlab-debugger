@@ -6,9 +6,7 @@ import * as React from "react";
 
 import { Debugger } from "./debugger/main";
 
-import {
-  DebuggerComponent
-} from './components/debugger';
+import { DebuggerComponent } from "./components/debugger";
 
 const DEBUGGER_WIDGET_CLASS = "jp-Debugger";
 

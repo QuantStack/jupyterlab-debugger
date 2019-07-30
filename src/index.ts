@@ -1,26 +1,28 @@
 import {
-  JupyterFrontEnd, JupyterFrontEndPlugin, ILabShell
-} from '@jupyterlab/application';
+  JupyterFrontEnd,
+  JupyterFrontEndPlugin,
+  ILabShell
+} from "@jupyterlab/application";
 
-import {
-  INotebookTracker
-} from "@jupyterlab/notebook";
+import { INotebookTracker } from "@jupyterlab/notebook";
 
-import {
-  DebuggerPanel
-} from './widget';
+import { DebuggerPanel } from "./widget";
 
-import '../style/index.css';
+import "../style/index.css";
 
 /**
  * Initialization data for the jupyterlab-debugger extension.
  */
 const extension: JupyterFrontEndPlugin<void> = {
-  id: 'jupyterlab-debugger',
+  id: "jupyterlab-debugger",
   autoStart: true,
   requires: [INotebookTracker],
   optional: [ILabShell],
-  activate: (app: JupyterFrontEnd, tracker: INotebookTracker, labShell: ILabShell) => {
+  activate: (
+    app: JupyterFrontEnd,
+    tracker: INotebookTracker,
+    labShell: ILabShell
+  ) => {
     let widget = new DebuggerPanel({ tracker });
     widget.id = "jp-debugger";
     widget.title.iconClass = "jp-SideBar-tabIcon jp-BugIcon";
@@ -34,7 +36,7 @@ const extension: JupyterFrontEndPlugin<void> = {
         return;
       }
       return widget.close();
-    })
+    });
   }
 };
 
