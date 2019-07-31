@@ -7,6 +7,7 @@ import { BreakpointsComponent } from "./breakpoints";
 import { IDebugger } from "../debugger/tokens";
 import { IDebugSession, IBreakpoint } from "../debugger/session";
 import { VariablesComponent } from "./variables";
+import { DebugProtocol } from "../debugger/debugProtocol";
 
 const DEBUGGER_HEADER_CLASS = "jp-Debugger-header";
 
@@ -18,6 +19,7 @@ interface IDebuggerState {
   started: boolean;
   debugSession: IDebugSession;
   breakpoints: IBreakpoint[];
+  variables: DebugProtocol.Variable[];
 }
 
 export class DebuggerComponent extends React.Component<
@@ -29,7 +31,8 @@ export class DebuggerComponent extends React.Component<
     this.state = {
       started: false,
       debugSession: props.debugger.debugSession,
-      breakpoints: []
+      breakpoints: [],
+      variables: []
     };
   }
 
@@ -84,9 +87,11 @@ export class DebuggerComponent extends React.Component<
   };
 
   debugContinue = async () => {
-    const { debugSession } = this.props.debugger;
     console.log("Continue");
+    const { debugSession } = this.props.debugger;
     await debugSession.continue();
+    const { variables, started } = debugSession;
+    this.setState({ variables, started });
   };
 
   render() {
@@ -113,7 +118,7 @@ export class DebuggerComponent extends React.Component<
             onClick={this.stopDebugger}
           />
         </div>
-        <VariablesComponent />
+        <VariablesComponent variables={this.state.variables} />
         <BreakpointsComponent
           debugSession={this.state.debugSession}
           breakpoints={this.state.breakpoints}

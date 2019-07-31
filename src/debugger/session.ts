@@ -10,12 +10,13 @@ export interface IBreakpoint {
 }
 
 export interface IDebugSession extends IDisposable {
-  start(): void;
-  stop(): void;
-  variables(): void;
-  continue(): void;
+  start(): Promise<void>;
+  stop(): Promise<void>;
+  continue(): Promise<void>;
+  getVariables(): Promise<DebugProtocol.Variable[]>;
   started: boolean;
   breakpoints: IBreakpoint[];
+  variables: DebugProtocol.Variable[];
 }
 
 export class DebugSession implements IDebugSession {
@@ -207,7 +208,7 @@ export class DebugSession implements IDebugSession {
     // do not await here (blocking)
   }
 
-  public async variables() {
+  public async getVariables(): Promise<DebugProtocol.Variable[]> {
     const kernel = this._notebook.session.kernel;
 
     const debugStacktrace = kernel.requestDebug(
@@ -217,13 +218,18 @@ export class DebugSession implements IDebugSession {
     debugStacktrace.onReply = (msg: KernelMessage.IDebugReplyMsg) => {
       console.log("received stacktrace reply");
       console.log(msg);
-      const stackFrames = msg.content.body.stackFrames;
-      if (!stackFrames) {
+      const stackTraceResponse = msg.content as DebugProtocol.StackTraceResponse;
+      const stackFrames = stackTraceResponse.body.stackFrames;
+      if (stackFrames.length === 0) {
         return;
       }
-      frameId = stackFrames[0]["id"];
+      frameId = stackFrames[0].id;
     };
     await debugStacktrace.done;
+
+    if (!frameId) {
+      return [];
+    }
 
     const debugScopes = kernel.requestDebug(this.createScopesRequest(frameId));
     let scopes: DebugProtocol.Scope[];
@@ -238,32 +244,36 @@ export class DebugSession implements IDebugSession {
     };
     await debugScopes.done;
 
-    let variables: { [scope: string]: DebugProtocol.Variable[] } = {};
-    scopes.forEach(async scope => {
-      const variablesReference = scope.variablesReference;
-      const debugVariables = kernel.requestDebug(
-        this.createVariablesRequest(variablesReference)
-      );
-      debugVariables.onReply = (msg: KernelMessage.IDebugReplyMsg) => {
-        console.log("received variables reply");
-        console.log(msg);
-        const variablesResponse = msg.content as DebugProtocol.VariablesResponse;
-        variables[scope.name] = variablesResponse.body.variables;
-      };
-      await debugVariables.done;
-    });
-
-    console.log(variables);
+    const scope = scopes[0];
+    const variablesReference = scope.variablesReference;
+    const debugVariables = kernel.requestDebug(
+      this.createVariablesRequest(variablesReference)
+    );
+    let variables = null;
+    debugVariables.onReply = (msg: KernelMessage.IDebugReplyMsg) => {
+      console.log("received variables reply");
+      console.log(msg);
+      const variablesResponse = msg.content as DebugProtocol.VariablesResponse;
+      variables = variablesResponse.body.variables;
+    };
+    await debugVariables.done;
+    return variables;
   }
 
   public async continue() {
     const kernel = this._notebook.session.kernel;
 
-    await this.variables();
+    this._variables = await this.getVariables();
+
+    if (this._variables.length === 0) {
+      await this.stop();
+      return;
+    }
 
     const debugContinue = kernel.requestDebug(
       this.createContinueRequest(this._threadId)
     );
+
     debugContinue.onReply = (msg: KernelMessage.IDebugReplyMsg) => {
       console.log("received continue reply");
       console.log(msg);
@@ -285,6 +295,7 @@ export class DebugSession implements IDebugSession {
     };
     await debugDisconnect.done;
 
+    this._variables = [];
     this._started = false;
   }
 
@@ -300,6 +311,14 @@ export class DebugSession implements IDebugSession {
     this._breakpoints = breakpoints;
   }
 
+  get variables(): DebugProtocol.Variable[] {
+    return this._variables;
+  }
+
+  set variables(variables: DebugProtocol.Variable[]) {
+    this._variables = variables;
+  }
+
   dispose(): void {}
 
   isDisposed: boolean;
@@ -310,4 +329,5 @@ export class DebugSession implements IDebugSession {
   private _threadId: number = 1;
   private _started: boolean = false;
   private _breakpoints: IBreakpoint[] = [];
+  private _variables: DebugProtocol.Variable[] = [];
 }
