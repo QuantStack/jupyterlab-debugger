@@ -1,14 +1,19 @@
 import { NotebookPanel } from "@jupyterlab/notebook";
 import { KernelMessage } from "@jupyterlab/services";
+import { IClientSession } from "@jupyterlab/apputils";
+import { IDisposable } from "@phosphor/disposable";
+import { DebugProtocol } from "./debugProtocol";
 
 export interface IBreakpoint {
   text: string;
   line: number;
 }
 
-export interface IDebugSession {
+export interface IDebugSession extends IDisposable {
   start(): void;
   stop(): void;
+  variables(): void;
+  continue(): void;
   started: boolean;
   breakpoints: IBreakpoint[];
 }
@@ -45,7 +50,7 @@ export class DebugSession implements IDebugSession {
   }
 
   createStacktraceRequest(threadId: number) {
-    return this.createRequestMsg("stacktrace", { threadId: threadId });
+    return this.createRequestMsg("stackTrace", { threadId: threadId });
   }
 
   createScopesRequest(frameId: number) {
@@ -113,6 +118,20 @@ export class DebugSession implements IDebugSession {
     });
   }
 
+  protected _onIOPubMessage(sender: IClientSession, msg: any) {
+    if (msg["msg_type"] !== "debug_event") {
+      return;
+    }
+    console.log("received debug event message");
+    console.log(msg);
+
+    if (msg.content.event === "thread") {
+      this._threadId = msg.content.body.threadId;
+    }
+
+    return false;
+  }
+
   public async start() {
     this._seq = 0;
 
@@ -122,6 +141,10 @@ export class DebugSession implements IDebugSession {
     if (!cell) {
       return;
     }
+
+    // listen to debug events on the IOPub channel
+    const session = this._notebook.session;
+    session.iopubMessage.connect(this._onIOPubMessage, this);
 
     const debugInit = kernel.requestDebug(this.createInitializeMsg());
     debugInit.onReply = (msg: KernelMessage.IDebugReplyMsg) => {
@@ -163,11 +186,96 @@ export class DebugSession implements IDebugSession {
     };
     await debugBreakpoints.done;
 
+    const debugConfigDone = kernel.requestDebug(
+      this.createConfigurationDoneMsg()
+    );
+    debugConfigDone.onReply = (msg: KernelMessage.IDebugReplyMsg) => {
+      console.log("received config done reply");
+      console.log(msg);
+    };
+
+    await debugConfigDone.done;
+
     this._started = true;
+
+    // execute the current cell
+    const debugExecute = kernel.requestExecute({ code: cellContent });
+    debugExecute.onReply = (msg: KernelMessage.IExecuteReplyMsg) => {
+      console.log("received execute reply");
+      console.log(msg);
+    };
+    // do not await here (blocking)
+  }
+
+  public async variables() {
+    const kernel = this._notebook.session.kernel;
+
+    const debugStacktrace = kernel.requestDebug(
+      this.createStacktraceRequest(this._threadId)
+    );
+    let frameId;
+    debugStacktrace.onReply = (msg: KernelMessage.IDebugReplyMsg) => {
+      console.log("received stacktrace reply");
+      console.log(msg);
+      const stackFrames = msg.content.body.stackFrames;
+      if (!stackFrames) {
+        return;
+      }
+      frameId = stackFrames[0]["id"];
+    };
+    await debugStacktrace.done;
+
+    const debugScopes = kernel.requestDebug(this.createScopesRequest(frameId));
+    let scopes: DebugProtocol.Scope[];
+    debugScopes.onReply = (msg: KernelMessage.IDebugReplyMsg) => {
+      console.log("received scopes reply");
+      console.log(msg);
+      const scopesResponse = msg.content as DebugProtocol.ScopesResponse;
+      if (!scopesResponse.body.scopes) {
+        return;
+      }
+      scopes = scopesResponse.body.scopes;
+    };
+    await debugScopes.done;
+
+    let variables: { [scope: string]: DebugProtocol.Variable[] } = {};
+    scopes.forEach(async scope => {
+      const variablesReference = scope.variablesReference;
+      const debugVariables = kernel.requestDebug(
+        this.createVariablesRequest(variablesReference)
+      );
+      debugVariables.onReply = (msg: KernelMessage.IDebugReplyMsg) => {
+        console.log("received variables reply");
+        console.log(msg);
+        const variablesResponse = msg.content as DebugProtocol.VariablesResponse;
+        variables[scope.name] = variablesResponse.body.variables;
+      };
+      await debugVariables.done;
+    });
+
+    console.log(variables);
+  }
+
+  public async continue() {
+    const kernel = this._notebook.session.kernel;
+
+    await this.variables();
+
+    const debugContinue = kernel.requestDebug(
+      this.createContinueRequest(this._threadId)
+    );
+    debugContinue.onReply = (msg: KernelMessage.IDebugReplyMsg) => {
+      console.log("received continue reply");
+      console.log(msg);
+    };
+    await debugContinue.done;
   }
 
   public async stop() {
     const kernel = this._notebook.session.kernel;
+    const session = this._notebook.session;
+    session.iopubMessage.disconnect(this._onIOPubMessage, this);
+
     const debugDisconnect = kernel.requestDebug(
       this.createDisconnectMsg(false, true)
     );
@@ -192,9 +300,14 @@ export class DebugSession implements IDebugSession {
     this._breakpoints = breakpoints;
   }
 
+  dispose(): void {}
+
+  isDisposed: boolean;
+
   private _notebook: NotebookPanel;
   private _seq: number;
-  private _nextId: number = 0;
+  private _nextId: number = 1;
+  private _threadId: number = 1;
   private _started: boolean = false;
   private _breakpoints: IBreakpoint[] = [];
 }

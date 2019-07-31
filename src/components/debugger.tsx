@@ -6,6 +6,7 @@ import { BreakpointsComponent } from "./breakpoints";
 
 import { IDebugger } from "../debugger/tokens";
 import { IDebugSession, IBreakpoint } from "../debugger/session";
+import { VariablesComponent } from "./variables";
 
 const DEBUGGER_HEADER_CLASS = "jp-Debugger-header";
 
@@ -82,6 +83,12 @@ export class DebuggerComponent extends React.Component<
     });
   };
 
+  debugContinue = async () => {
+    const { debugSession } = this.props.debugger;
+    console.log("Continue");
+    await debugSession.continue();
+  };
+
   render() {
     return (
       <>
@@ -95,11 +102,18 @@ export class DebuggerComponent extends React.Component<
           />
           <ToolbarButtonComponent
             enabled={this.state.started}
+            tooltip="Continue"
+            iconClassName="jp-RunIcon"
+            onClick={this.debugContinue}
+          />
+          <ToolbarButtonComponent
+            enabled={this.state.started}
             tooltip="Stop Debugger"
             iconClassName="jp-StopIcon"
             onClick={this.stopDebugger}
           />
         </div>
+        <VariablesComponent />
         <BreakpointsComponent
           debugSession={this.state.debugSession}
           breakpoints={this.state.breakpoints}
