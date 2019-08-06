@@ -53,7 +53,8 @@
     "@phosphor/disposable": "^1.2.0",
     "codemirror": "~5.47.0",
     "react": "~16.8.4",
-    "react-dom": "~16.8.4"
+    "react-dom": "~16.8.4",
+    "vscode-debugprotocol": "^1.35.0"
   },
   "devDependencies": {
     "@types/codemirror": "^0.0.76",

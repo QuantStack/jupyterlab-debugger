@@ -1,5 +1,7 @@
 import { ToolbarButtonComponent } from "@jupyterlab/apputils";
 
+import { DebugProtocol } from "vscode-debugprotocol";
+
 import * as React from "react";
 
 import { BreakpointsComponent } from "./breakpoints";
@@ -7,7 +9,6 @@ import { BreakpointsComponent } from "./breakpoints";
 import { IDebugger } from "../debugger/tokens";
 import { IDebugSession, IBreakpoint } from "../debugger/session";
 import { VariablesComponent } from "./variables";
-import { DebugProtocol } from "../debugger/debugProtocol";
 
 const DEBUGGER_HEADER_CLASS = "jp-Debugger-header";
 
