@@ -88,3 +88,31 @@
 .breakpoints {
   width: 15px;
 }
+
+/* Variable List */
+.jp-Debugger-variableList {
+  margin: 0;
+  padding: 0;
+  list-style-type: none;
+}
+
+/* Variable Name */
+.jp-Debugger-variableItem-name {
+  flex: 1 1 auto;
+  font-size: var(--jp-ui-font-size1);
+  padding-left: 4px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+/* Variable Value */
+.jp-Debugger-variableItem-value {
+  flex: 0 0 auto;
+  font-size: var(--jp-ui-font-size1);
+  margin-right: 4px;
+  padding-left: 4px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
