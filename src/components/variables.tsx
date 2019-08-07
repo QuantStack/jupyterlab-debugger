@@ -1,7 +1,8 @@
+import { DebugProtocol } from "vscode-debugprotocol";
+
 import React from "react";
 
 import { DEBUGGER_HEADER_CLASS } from "./constants";
-import { DebugProtocol } from "../debugger/debugProtocol";
 
 const DEBUGGER_VARIABLES_LIST_CLASS = "jp-Debugger-variableList";
 const DEBUGGER_VARIABLE_ITEM_VALUE_CLASS = "jp-Debugger-variableItem-name";

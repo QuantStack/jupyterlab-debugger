@@ -4,33 +4,31 @@ Debugger extension for JupyterLab.
 
 ## Prerequisites
 
-- JupyterLab 1.0
+- JupyterLab 1.1+
 
 ## Development
-
-This extension is being developed using [this development branch](https://github.com/jupyterlab/jupyterlab/pull/6704) in the JupyterLab repo.
 
 To get started:
 
 ```bash
-# follow the JupyterLab contributing guide to create a local dev setup
-# https://github.com/jupyterlab/jupyterlab/blob/master/CONTRIBUTING.md
+# create a new conda environment
+conda create -n jupyterlab-debugger -c conda-forge jupyterlab nodejs xeus-python ptvsd
 
 # activate the conda environment
-conda activate jupyterlab-dev-debugger
-
-# checkout the debug branch
-git fetch origin pull/6704/head:JohanMabille-debug
-git checkout JohanMabille-debug
+conda activate jupyterlab-debugger
 
 # create the ptvsd directory for the logs in the folder where JupyterLab is started
 mkdir xpython_debug_logs
 
-# install the debugger extension as a sibling package
-jlpm run add:sibling /path/to/jupyterlab-debugger
+# install dependencies
+jlpm
 
-# start JupyterLab in dev mode and with the kernel logs enabled
-XEUS_LOG=1 jupyter lab --dev-mode --no-browser --watch
+# build Typescript source
+jlpm build
+
+# install the development version of the extension
+jupyter labextension install .
+
+# start JupyterLab with the kernel logs enabled
+XEUS_LOG=1 jupyter lab --no-browser --watch
 ```
-
-When making changes to the `jupyterlab-debugger` extension, rerun the `add:sibling` command.

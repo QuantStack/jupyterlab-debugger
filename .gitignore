@@ -4,3 +4,8 @@ node_modules/
 *.egg-info/
 .ipynb_checkpoints
 tsconfig.tsbuildinfo
+.vscode
+
+# xeus-python debug logs
+xpython_debug_logs
+xeus.log

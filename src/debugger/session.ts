@@ -2,7 +2,7 @@ import { NotebookPanel } from "@jupyterlab/notebook";
 import { KernelMessage } from "@jupyterlab/services";
 import { IClientSession } from "@jupyterlab/apputils";
 import { IDisposable } from "@phosphor/disposable";
-import { DebugProtocol } from "./debugProtocol";
+import { DebugProtocol } from "vscode-debugprotocol";
 
 export interface IBreakpoint {
   text: string;
