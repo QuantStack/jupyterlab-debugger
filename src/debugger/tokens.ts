@@ -9,4 +9,5 @@ export interface IDebugger {
   debugSession: IDebugSession;
   breakpointChanged: Signal<this, IBreakpoint[]>;
   activeCellChanged: Signal<this, IBreakpoint[]>;
+  addLineHighlight(line: number): void;
 }

@@ -91,8 +91,9 @@ export class DebuggerComponent extends React.Component<
     console.log("Continue");
     const { debugSession } = this.props.debugger;
     await debugSession.continue();
-    const { variables, started } = debugSession;
+    const { currentLine, variables, started } = debugSession;
     this.setState({ variables, started });
+    this.props.debugger.addLineHighlight(currentLine);
   };
 
   render() {

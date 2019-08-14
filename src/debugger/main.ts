@@ -103,6 +103,23 @@ export class Debugger implements IDebugger {
     return lines;
   }
 
+  addLineHighlight(line: number | null): void {
+    const cell = this._tracker.activeCell;
+    if (!cell) {
+      return;
+    }
+    const editor = cell.editor as CodeMirrorEditor;
+    const cm = editor.editor;
+    // remove existing highlights
+    for (let i = 0; i < editor.doc.lineCount(); i++) {
+      cm.removeLineClass(i, "wrap", "highlight");
+    }
+    if (!line) {
+      return;
+    }
+    cm.addLineClass(line - 1, "wrap", "highlight");
+  }
+
   get activeCell(): Cell | null {
     return this._tracker.activeCell;
   }
