@@ -89,6 +89,11 @@
   width: 15px;
 }
 
+/* Codemirror line highlight */
+.highlight {
+  background-color: greenyellow;
+}
+
 /* Variable List */
 .jp-Debugger-variableList {
   margin: 0;

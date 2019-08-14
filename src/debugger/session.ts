@@ -17,6 +17,7 @@ export interface IDebugSession extends IDisposable {
   started: boolean;
   breakpoints: IBreakpoint[];
   variables: DebugProtocol.Variable[];
+  currentLine: number;
 }
 
 export class DebugSession implements IDebugSession {
@@ -135,6 +136,8 @@ export class DebugSession implements IDebugSession {
 
   public async start() {
     this._seq = 0;
+    this._currentCellLine = null;
+    this._nextId = 1;
 
     const kernel = this._notebook.session.kernel;
     const cell = this._notebook.content.activeCell;
@@ -221,9 +224,12 @@ export class DebugSession implements IDebugSession {
       const stackTraceResponse = msg.content as DebugProtocol.StackTraceResponse;
       const stackFrames = stackTraceResponse.body.stackFrames;
       if (stackFrames.length === 0) {
+        this._currentCellLine = null;
         return;
       }
-      frameId = stackFrames[0].id;
+      const frame = stackFrames[0];
+      frameId = frame.id;
+      this._currentCellLine = frame.source ? frame.line : null;
     };
     await debugStacktrace.done;
 
@@ -319,6 +325,10 @@ export class DebugSession implements IDebugSession {
     this._variables = variables;
   }
 
+  get currentLine(): number {
+    return this._currentCellLine;
+  }
+
   dispose(): void {}
 
   isDisposed: boolean;
@@ -330,4 +340,5 @@ export class DebugSession implements IDebugSession {
   private _started: boolean = false;
   private _breakpoints: IBreakpoint[] = [];
   private _variables: DebugProtocol.Variable[] = [];
+  private _currentCellLine: number | null;
 }
