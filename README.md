@@ -12,10 +12,13 @@ To get started:
 
 ```bash
 # create a new conda environment
-conda create -n jupyterlab-debugger -c conda-forge jupyterlab nodejs xeus-python ptvsd
+conda create -n jupyterlab-debugger -c conda-forge nodejs xeus-python ptvsd
 
 # activate the conda environment
 conda activate jupyterlab-debugger
+
+# install JupyterLab 1.1 alpha
+python -m pip install --pre jupyterlab
 
 # create the ptvsd directory for the logs in the folder where JupyterLab is started
 mkdir xpython_debug_logs
