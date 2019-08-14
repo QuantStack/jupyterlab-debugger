@@ -1,0 +1,3 @@
+mkdir xpython_debug_logs
+
+jlpm && jlpm build && jupyter labextension install .
