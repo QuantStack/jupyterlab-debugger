@@ -1,6 +1,6 @@
 # jupyterlab-debugger
 
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/QuantStack/jupyterlab-debugger/master?urlpath=/lab)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/QuantStack/jupyterlab-debugger/master?urlpath=/lab/tree/examples/demo.ipynb)
 
 Debugger extension for JupyterLab.
 
