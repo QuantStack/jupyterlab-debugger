@@ -3,6 +3,7 @@ channels:
 - conda-forge
 dependencies:
 - nodejs
+- notebook=6
 - ptvsd
 - xeus-python=0.4
 - pip:
